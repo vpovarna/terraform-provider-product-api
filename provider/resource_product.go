@@ -15,7 +15,7 @@ func resourceProduct() *schema.Resource {
 	fmt.Print()
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"id": {
+			"pid": {
 				Type:        schema.TypeInt,
 				Required:    true,
 				Description: "An unique ID for the product",
@@ -62,7 +62,7 @@ func validateName(v interface{}, k string) (ws []string, es []error) {
 func resourceCreateProduct(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
 	product := server.Product{
-		ID:    d.Get("id").(int),
+		ID:    d.Get("pid").(int),
 		Name:  d.Get("name").(string),
 		Price: d.Get("price").(float64),
 	}
@@ -72,25 +72,25 @@ func resourceCreateProduct(d *schema.ResourceData, m interface{}) error {
 	if err != nil {
 		return err
 	}
-	id := strconv.Itoa(product.ID)
-	d.SetId(id)
+	pid := strconv.Itoa(product.ID)
+	d.SetId(pid)
 	return nil
 }
 
 func resourceReadProduct(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
 
-	productID, err := strconv.Atoi(d.Id())
+	pid, err := strconv.Atoi(d.Id())
 	if err != nil {
 		return err
 	}
 
-	product, err := apiClient.GetProduct(productID)
+	product, err := apiClient.GetProduct(pid)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			d.SetId("")
 		} else {
-			return fmt.Errorf("error finding product with ID %d", productID)
+			return fmt.Errorf("error finding product with ID %d", pid)
 		}
 	}
 
@@ -104,7 +104,7 @@ func resourceReadProduct(d *schema.ResourceData, m interface{}) error {
 func resourceUpdateProduct(d *schema.ResourceData, m interface{}) error {
 	apiClient := m.(*client.Client)
 	product := server.Product{
-		ID:    d.Get("id").(int),
+		ID:    d.Get("pid").(int),
 		Name:  d.Get("name").(string),
 		Price: d.Get("price").(float64),
 	}
@@ -122,12 +122,12 @@ func resourceDeleteProduct(d *schema.ResourceData, m interface{}) error {
 
 	id := d.Id()
 
-	productID, err := strconv.Atoi(id)
+	pid, err := strconv.Atoi(id)
 	if err != nil {
 		return err
 	}
 
-	err = apiClinet.DeleteProduct(productID)
+	err = apiClinet.DeleteProduct(pid)
 	if err != nil {
 		return err
 	}
@@ -139,12 +139,12 @@ func resourceExistsProduct(d *schema.ResourceData, m interface{}) (bool, error) 
 
 	apiClient := m.(*client.Client)
 	id := d.Id()
-	productID, err := strconv.Atoi(id)
+	pid, err := strconv.Atoi(id)
 	if err != nil {
 		return false, err
 	}
 
-	_, err = apiClient.GetProduct(productID)
+	_, err = apiClient.GetProduct(pid)
 	if err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return false, nil
